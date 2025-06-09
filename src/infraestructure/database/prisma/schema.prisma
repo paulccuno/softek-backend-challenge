@@ -7,6 +7,22 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id String @id @default(uuid())
+
+  username String @unique
+  password String
+  roles    String @default("user")
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by String?
+  updated_by String?
+  is_active  Boolean  @default(true)
+
+  @@map("user")
+}
+
 model FusedCharacter {
   id String @id @default(uuid())
 

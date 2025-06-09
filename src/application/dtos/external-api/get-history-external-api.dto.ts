@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsNumber, IsOptional, Min } from 'class-validator';
 
-export class HistoryDto {
+export class GetHistoryExternalApiDto {
   @ApiProperty({ default: 1 })
   @IsNumber()
   @IsOptional()

@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsOptional, IsString, IsUUID } from 'class-validator';
 
-export class StoreDto {
+export class CreateCustomDto {
   @ApiProperty()
   @IsUUID()
   @IsOptional()

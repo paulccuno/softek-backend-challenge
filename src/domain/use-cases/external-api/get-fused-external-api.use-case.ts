@@ -1,11 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { IFusedCharacterRepository } from 'src/domain/repositories/fused-character.repository';
-import { IRickAndMortyService } from '../../domain/external-services/rick-and-morty/rick-and-morty.api.service';
-import { IStarWarsService } from '../../domain/external-services/star-wars/star-wars.api.service';
+import { IRickAndMortyService } from '../../external-services/rick-and-morty/rick-and-morty.api.service';
+import { IStarWarsService } from '../../external-services/star-wars/star-wars.api.service';
 import { FusedCharacter } from 'src/domain/entites/fused-character.entity';
 
 @Injectable()
-export class FusedUseCase {
+export class GetFusedExternalApiUseCase {
   private readonly logger: Logger;
 
   constructor(
@@ -13,7 +13,7 @@ export class FusedUseCase {
     private readonly starWarsService: IStarWarsService,
     private readonly fusedCharacterRepository: IFusedCharacterRepository,
   ) {
-    this.logger = new Logger(FusedUseCase.name);
+    this.logger = new Logger(GetFusedExternalApiUseCase.name);
   }
 
   async execute() {

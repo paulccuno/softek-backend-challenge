@@ -24,6 +24,9 @@ interface IEnvironmentConfig {
   REDIS_PORT: number;
   REDIS_PASSWORD?: string;
   CACHE_DEFAULT_TTL: number;
+
+  JWT_SECRET: string;
+  JWT_EXPIRATION: string;
 }
 
 const validationSchemaConfig = Joi.object<IEnvironmentConfig>({
@@ -42,6 +45,9 @@ const validationSchemaConfig = Joi.object<IEnvironmentConfig>({
   REDIS_PORT: Joi.number().port().required(),
   REDIS_PASSWORD: Joi.string().optional().allow(''),
   CACHE_DEFAULT_TTL: Joi.number().min(1).required().default(300),
+
+  JWT_SECRET: Joi.string().required(),
+  JWT_EXPIRATION: Joi.string().required(),
 }).unknown(true);
 
 const { error, value } = validationSchemaConfig.validate(process.env, {

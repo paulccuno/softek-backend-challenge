@@ -1,17 +1,17 @@
 services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - '3000:3000'
-    env_file:
-      - .env.local
-    depends_on:
-      - softektest-db
-      - redis
-    volumes:
-      - ./src:/usr/src/app/src
+  # app:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - '3000:3000'
+  #   env_file:
+  #     - .env.local
+  #   depends_on:
+  #     - softektest-db
+  #     - redis
+  #   volumes:
+  #     - ./src:/usr/src/app/src
 
   softektest-db:
     image: mysql:8.0
