@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model FusedCharacter {
+  id String @id @default(uuid())
+
+  // SWAPI
+  star_wars_character_id      Int
+  star_wars_character_name    String
+  star_wars_character_height  Int?
+  star_wars_character_mass    Int?
+  star_wars_homeworld_name    String
+  star_wars_homeworld_climate String?
+
+  // Rick and Morty API
+  rnm_location_name      String
+  rnm_location_type      String?
+  rnm_location_dimension String?
+
+  fusion_description String @db.VarChar(1000)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by String?
+  updated_by String?
+  is_active  Boolean  @default(true)
+
+  @@map("fused_character")
+}
+
+model Custom {
+  id String @id @default(uuid())
+
+  title   String
+  content String @db.Text
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by String?
+  updated_by String?
+  is_active  Boolean  @default(true)
+
+  @@map("custom")
+}

@@ -1,0 +1,35 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'
+    env_file:
+      - .env.local
+    depends_on:
+      - softektest-db
+      - redis
+    volumes:
+      - ./src:/usr/src/app/src
+
+  softektest-db:
+    image: mysql:8.0
+    environment:
+      - MYSQL_ROOT_PASSWORD=123123
+      - MYSQL_DATABASE=softektestdb
+      - MYSQL_USER=admin
+      - MYSQL_PASSWORD=root
+    ports:
+      - '3306:3306'
+    volumes:
+      - db_data:/var/lib/mysql
+    restart: always
+
+  redis:
+    image: redis:7
+    ports:
+      - '6379:6379'
+
+volumes:
+  db_data:
