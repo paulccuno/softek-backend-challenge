@@ -1,25 +1,25 @@
 import { Module, Provider } from '@nestjs/common';
-import { PrismaService } from './prisma.service';
 import { IFusedCharacterRepository } from 'src/domain/repositories/fused-character.repository';
-import { PrismaFusedCharactedRepository } from '../../database/prisma/repositories/prisma-fused-character.repository';
 import { ICustomRepository } from 'src/domain/repositories/custom.repository';
-import { PrismaCustomRepostory } from '../../database/prisma/repositories/prisma-custom.repository';
-import { PrismaUserRepository } from './repositories/prisma-user.repository';
 import { IUserRepository } from 'src/domain/repositories/user.repository';
+import { DynamoFusedCharacterRepository } from './repositories/dynamo-fused-character.repository';
+import { DynamoCustomRepostory } from './repositories/dynamo-custom.repository';
+import { DynamoUserRepository } from './repositories/dynamo-user.repository';
+import { DynamoDBService } from './dynamodb.service';
 
 const providers: Provider[] = [
-  PrismaService,
+  DynamoDBService,
   {
     provide: IFusedCharacterRepository,
-    useClass: PrismaFusedCharactedRepository,
+    useClass: DynamoFusedCharacterRepository,
   },
   {
     provide: ICustomRepository,
-    useClass: PrismaCustomRepostory,
+    useClass: DynamoCustomRepostory,
   },
   {
     provide: IUserRepository,
-    useClass: PrismaUserRepository,
+    useClass: DynamoUserRepository,
   },
 ];
 
@@ -29,4 +29,4 @@ const providers: Provider[] = [
   providers: providers,
   exports: providers,
 })
-export class PrismaModule {}
+export class DynamoDBModule {}

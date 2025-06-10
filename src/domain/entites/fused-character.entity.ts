@@ -1,9 +1,9 @@
 import { Expose, instanceToPlain, plainToInstance } from 'class-transformer';
-import { FusedCharacter as PrismaFusedCharacter } from '@prisma/client';
+// import { FusedCharacter as PrismaFusedCharacter } from '@prisma/client';
 
 export class FusedCharacter {
   @Expose({ name: 'id' })
-  public readonly id?: string;
+  public id?: string;
 
   // SWAPI
   @Expose({ name: 'star_wars_character_id' })
@@ -56,7 +56,7 @@ export class FusedCharacter {
     Object.assign(this, props);
   }
 
-  public static toEntity(data: PrismaFusedCharacter): FusedCharacter {
+  public static toEntity(data: any): FusedCharacter {
     return plainToInstance(FusedCharacter, data, {
       exposeUnsetFields: true,
       excludeExtraneousValues: true,
@@ -64,9 +64,9 @@ export class FusedCharacter {
     });
   }
 
-  public toPersistence(): PrismaFusedCharacter {
+  public toPersistence(): any {
     return instanceToPlain(this, {
       excludeExtraneousValues: true,
-    }) as PrismaFusedCharacter;
+    }) as any;
   }
 }

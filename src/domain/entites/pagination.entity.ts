@@ -8,7 +8,7 @@ export class Pagination<T> {
   public readonly total: number;
 
   @Expose()
-  public readonly page: number;
+  public readonly page: number | Record<string, any>;
 
   @Expose()
   public readonly limit: number;
@@ -20,10 +20,10 @@ export class Pagination<T> {
     Object.assign(this, props);
   }
 
-  public static toEntity<PrismaEntity, DomainEntity>(
-    paginationData: Pagination<PrismaEntity>,
+  public static toEntity<InfraestrucutreEntity, DomainEntity>(
+    paginationData: Pagination<InfraestrucutreEntity>,
     type: (new (...args: any[]) => DomainEntity) & {
-      toEntity: (entity: PrismaEntity) => DomainEntity;
+      toEntity: (entity: InfraestrucutreEntity) => DomainEntity;
     },
   ): Pagination<DomainEntity> {
     return new Pagination<DomainEntity>({

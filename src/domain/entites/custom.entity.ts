@@ -1,9 +1,9 @@
 import { Expose, instanceToPlain, plainToInstance } from 'class-transformer';
-import { Custom as PrismaCustom } from '@prisma/client';
+// import { Custom as PrismaCustom } from '@prisma/client';
 
 export class Custom {
   @Expose({ name: 'id' })
-  public readonly id?: string;
+  public id?: string;
 
   @Expose({ name: 'title' })
   public title: string;
@@ -30,7 +30,7 @@ export class Custom {
     Object.assign(this, props);
   }
 
-  public static toEntity(data: PrismaCustom): Custom {
+  public static toEntity(data: any): Custom {
     return plainToInstance(Custom, data, {
       exposeUnsetFields: true,
       excludeExtraneousValues: true,
@@ -38,9 +38,9 @@ export class Custom {
     });
   }
 
-  toPersistence(): PrismaCustom {
+  toPersistence(): any {
     return instanceToPlain(this, {
       excludeExtraneousValues: true,
-    }) as PrismaCustom;
+    }) as any;
   }
 }

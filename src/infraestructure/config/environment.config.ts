@@ -14,6 +14,10 @@ dotenv.config({ path: `.env.${process.env.NODE_ENV || Environment.local}` });
 interface IEnvironmentConfig {
   NODE_ENV: Environment;
   PORT: number;
+
+  AWS_REGION: string;
+  AWS_ACCESS_KEY_ID: string;
+  AWS_SECRET_ACCESS_KEY: string;
   DATABASE_URL: string;
 
   SW_API_BASE_URL: string;
@@ -36,6 +40,11 @@ const validationSchemaConfig = Joi.object<IEnvironmentConfig>({
     .required()
     .default(Environment.local),
   PORT: Joi.number().required(),
+
+  AWS_REGION: Joi.string().required(),
+  AWS_ACCESS_KEY_ID: Joi.string().required(),
+  AWS_SECRET_ACCESS_KEY: Joi.string().required(),
+
   DATABASE_URL: Joi.string().required(),
 
   SW_API_BASE_URL: Joi.string().uri().required(),

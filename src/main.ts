@@ -1,40 +1,9 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 import { EnvironmentConfig } from './infraestructure/config/environment.config';
-import { Logger, ValidationPipe } from '@nestjs/common';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { PrismaService } from './infraestructure/database/prisma/prisma.service';
-import { AppExceptionFilter } from './infraestructure/filters/app-exception.filter';
+import { Logger } from '@nestjs/common';
+import { initApplication } from './app';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-
-  const prismaService = app.get(PrismaService);
-  prismaService.enableShutdownHooks(app);
-
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      transform: true,
-    }),
-  );
-
-  app.setGlobalPrefix('api');
-
-  app.enableCors();
-
-  const config = new DocumentBuilder()
-    .setTitle('RIMAC Challenge')
-    .setDescription('Softek')
-    .setVersion('1.0')
-    .addBearerAuth()
-    .build();
-
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, document);
-
-  app.useGlobalFilters(new AppExceptionFilter());
-
+  const [app] = await initApplication();
   await app.listen(EnvironmentConfig.PORT);
   Logger.log(
     `Application is running on: ${(await app.getUrl()).replace('[::1]', 'localhost')}`,

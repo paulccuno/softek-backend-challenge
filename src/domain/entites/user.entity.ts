@@ -1,5 +1,5 @@
 import { Expose, instanceToPlain, plainToInstance } from 'class-transformer';
-import { User as PrismaUser } from '@prisma/client';
+// import { User as PrismaUser } from '@prisma/client';
 
 export class User {
   @Expose()
@@ -33,7 +33,7 @@ export class User {
     Object.assign(this, props);
   }
 
-  public static toEntity(data: PrismaUser): User {
+  public static toEntity(data: any): User {
     const userInstance = plainToInstance(User, data, {
       exposeUnsetFields: true,
       excludeExtraneousValues: true,
@@ -45,10 +45,10 @@ export class User {
     return userInstance;
   }
 
-  public toPersistence(): PrismaUser {
+  public toPersistence(): any {
     const prismaUserInstance = instanceToPlain(this, {
       excludeExtraneousValues: true,
-    }) as PrismaUser;
+    }) as any;
 
     prismaUserInstance.roles = this.roles?.join(',');
 

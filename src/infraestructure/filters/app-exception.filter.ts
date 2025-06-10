@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { AppException } from '../exceptions/app.exception';
-import { Prisma } from '@prisma/client';
+// import { Prisma } from '@prisma/client';
 
 export class AppExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(AppExceptionFilter.name);
@@ -55,36 +55,36 @@ export class AppExceptionFilter implements ExceptionFilter {
       if (httpStatus === HttpStatus.INTERNAL_SERVER_ERROR)
         this.logger.error(logMessageDetails, logStack);
       else this.logger.warn(logMessageDetails);
-    } else if (exception instanceof Prisma.PrismaClientKnownRequestError) {
-      logMessageDetails = `DBEception: ${exception.name} - Code ${exception.code} - ${exception.message} at ${request.url}`;
-      logStack = exception.stack;
+      // } else if (exception instanceof Prisma.PrismaClientKnownRequestError) {
+      //   logMessageDetails = `DBEception: ${exception.name} - Code ${exception.code} - ${exception.message} at ${request.url}`;
+      //   logStack = exception.stack;
 
-      switch (exception.code) {
-        case 'P2002': {
-          httpStatus = HttpStatus.CONFLICT;
+      //   switch (exception.code) {
+      //     case 'P2002': {
+      //       httpStatus = HttpStatus.CONFLICT;
 
-          message =
-            exception.message.split('\n').pop()?.trim() ||
-            'Duplicate entry detected.';
-          break;
-        }
-        case 'P2025': {
-          httpStatus = HttpStatus.NOT_FOUND;
+      //       message =
+      //         exception.message.split('\n').pop()?.trim() ||
+      //         'Duplicate entry detected.';
+      //       break;
+      //     }
+      //     case 'P2025': {
+      //       httpStatus = HttpStatus.NOT_FOUND;
 
-          message =
-            exception.message.split('\n').pop()?.trim() || 'Record not found.';
-          break;
-        }
-        default: {
-          httpStatus = HttpStatus.BAD_REQUEST;
-          message =
-            exception.message.split('\n').pop()?.trim() ||
-            'Database error ocurred';
-          break;
-        }
-      }
+      //       message =
+      //         exception.message.split('\n').pop()?.trim() || 'Record not found.';
+      //       break;
+      //     }
+      //     default: {
+      //       httpStatus = HttpStatus.BAD_REQUEST;
+      //       message =
+      //         exception.message.split('\n').pop()?.trim() ||
+      //         'Database error ocurred';
+      //       break;
+      //     }
+      //   }
 
-      this.logger.error(logMessageDetails, logStack);
+      //   this.logger.error(logMessageDetails, logStack);
     } else if (exception instanceof Error) {
       message = 'Internal server error.';
       logMessageDetails = `Unhandled Error: ${exception.name} - ${exception.message} at ${request.url}`;
