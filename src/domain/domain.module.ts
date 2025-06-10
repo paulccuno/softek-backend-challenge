@@ -5,10 +5,12 @@ import { GetHistoryExternalApiUseCase } from './use-cases/external-api/get-histo
 import { CreateCustomUseCase } from './use-cases/custom/create-custom.use-case';
 import { RegisterUserUseCase } from './use-cases/auth/register-user.use-case';
 import { LoginUserUseCase } from './use-cases/auth/login-user.use-case';
+import { RefreshTokenUseCase } from './use-cases/auth/refresh-token.use-case';
 
 const providers: Provider[] = [
   RegisterUserUseCase,
   LoginUserUseCase,
+  RefreshTokenUseCase,
   GetFusedExternalApiUseCase,
   GetHistoryExternalApiUseCase,
   CreateCustomUseCase,

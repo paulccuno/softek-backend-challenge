@@ -27,6 +27,7 @@ interface IEnvironmentConfig {
 
   JWT_SECRET: string;
   JWT_EXPIRATION: string;
+  JWT_REFRESH_EXPIRATION: string;
 }
 
 const validationSchemaConfig = Joi.object<IEnvironmentConfig>({
@@ -48,6 +49,7 @@ const validationSchemaConfig = Joi.object<IEnvironmentConfig>({
 
   JWT_SECRET: Joi.string().required(),
   JWT_EXPIRATION: Joi.string().required(),
+  JWT_REFRESH_EXPIRATION: Joi.string().required(),
 }).unknown(true);
 
 const { error, value } = validationSchemaConfig.validate(process.env, {

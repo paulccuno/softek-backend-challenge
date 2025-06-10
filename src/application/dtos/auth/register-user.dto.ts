@@ -17,7 +17,7 @@ export class RegisterUserDto {
   @ApiProperty()
   @IsString()
   @MinLength(5)
-  @MaxLength(10)
+  @MaxLength(30)
   username: string;
 
   @ApiProperty()

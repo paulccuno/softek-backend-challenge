@@ -4,6 +4,8 @@ import { LoginUserDto } from 'src/application/dtos/auth/login-user.dto';
 import { IUserRepository } from 'src/domain/repositories/user.repository';
 import { AppException } from 'src/infraestructure/exceptions/app.exception';
 import * as bcrypt from 'bcrypt';
+import { LoginUserResponseDto } from 'src/application/dtos/auth/login-user-response.dto';
+import { EnvironmentConfig } from 'src/infraestructure/config/environment.config';
 
 @Injectable()
 export class LoginUserUseCase {
@@ -14,7 +16,7 @@ export class LoginUserUseCase {
     private readonly jwtService: JwtService,
   ) {}
 
-  async execute(dto: LoginUserDto) {
+  async execute(dto: LoginUserDto): Promise<LoginUserResponseDto> {
     const user = await this.userRepository.findByUsename(dto.username);
 
     if (!user)
@@ -28,10 +30,18 @@ export class LoginUserUseCase {
     if (!validatePassword)
       throw new AppException('Password is incorrect.', HttpStatus.UNAUTHORIZED);
 
-    const { password, ...result } = user;
+    const { password, ...rest } = user;
 
-    return {
-      accesToken: this.jwtService.sign(result),
+    const response: LoginUserResponseDto = {
+      user,
+      tokens: {
+        accessToken: this.jwtService.sign(rest),
+        refreshToken: this.jwtService.sign(rest, {
+          expiresIn: EnvironmentConfig.JWT_REFRESH_EXPIRATION,
+        }),
+      },
     };
+
+    return response;
   }
 }

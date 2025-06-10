@@ -11,8 +11,9 @@ import { GetHistoryExternalApiDto } from '../dtos/external-api/get-history-exter
 import { CACHE_MANAGER, CacheInterceptor } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { JwtAuthGuard } from 'src/infraestructure/jwt/jwt-auth.guard';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { Public } from 'src/infraestructure/decorators/public.decorator';
 
+@UseGuards(JwtAuthGuard)
 @Controller('external-api')
 export class ExternalApiController {
   constructor(
@@ -21,12 +22,11 @@ export class ExternalApiController {
   ) {}
 
   @Get('fusionados')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
   getFusedExternalApi() {
     return this.externalApiService.getFusedExternalApi();
   }
 
+  @Public()
   @Get('historial')
   @UseInterceptors(CacheInterceptor)
   getHistoryExternalApi(@Query() dto: GetHistoryExternalApiDto) {
