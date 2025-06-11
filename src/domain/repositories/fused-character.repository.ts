@@ -5,8 +5,8 @@ export abstract class IFusedCharacterRepository {
   abstract create(fusedCharacter: FusedCharacter): Promise<FusedCharacter>;
 
   abstract getAll(
-    page: number,
     limit: number,
+    pageToken?: string,
   ): Promise<Pagination<FusedCharacter>>;
 
   abstract getById(id: string): Promise<FusedCharacter | null>;

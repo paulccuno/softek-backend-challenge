@@ -8,7 +8,7 @@ export class Pagination<T> {
   public readonly total: number;
 
   @Expose()
-  public readonly page: number | Record<string, any>;
+  public readonly page: number | string;
 
   @Expose()
   public readonly limit: number;

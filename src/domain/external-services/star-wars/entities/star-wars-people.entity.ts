@@ -2,21 +2,21 @@ import { Expose, plainToInstance, Transform } from 'class-transformer';
 
 export class SWPeople {
   @Expose()
-  public readonly id: number;
+  public id: number;
 
   @Expose()
   public readonly name: string;
 
   @Expose()
-  @Transform(({ value }) => (value === 'unknown' ? null : Number(value)), {
-    toClassOnly: true,
-  })
+  @Transform(({ value }) =>
+    value === 'unknown' || isNaN(value) ? null : Number(value),
+  )
   public readonly height?: number;
 
   @Expose()
-  @Transform(({ value }) => (value === 'unknown' ? null : Number(value)), {
-    toClassOnly: true,
-  })
+  @Transform(({ value }) =>
+    value === 'unknown' || isNaN(value) ? null : Number(value),
+  )
   public readonly mass?: number;
 
   @Expose({ name: 'hair_color' })
@@ -47,15 +47,11 @@ export class SWPeople {
   public readonly starships: string[];
 
   @Expose()
-  @Transform(({ value }) => (value ? new Date(value) : null), {
-    toClassOnly: true,
-  })
+  @Transform(({ value }) => (value ? new Date(value) : null))
   public readonly created: Date;
 
   @Expose()
-  @Transform(({ value }) => (value ? new Date(value) : null), {
-    toClassOnly: true,
-  })
+  @Transform(({ value }) => (value ? new Date(value) : null))
   public readonly edited: Date;
 
   @Expose()
@@ -64,19 +60,26 @@ export class SWPeople {
   constructor(props: Partial<SWPeople>) {
     Object.assign(this, props);
 
-    if (this.url && this.id === undefined) {
-      const match = this.url.match(/\/([0-9]+)\/$/);
-      if (match && match[1]) {
-        this.id = parseInt(match[1], 10);
-      }
-    }
+    this.assignId();
   }
 
   public static toEntity(data: any): SWPeople {
-    return plainToInstance(SWPeople, data, {
+    const entityInstance = plainToInstance(SWPeople, data, {
       exposeUnsetFields: true,
       excludeExtraneousValues: true,
       enableImplicitConversion: true,
     });
+
+    entityInstance.assignId();
+
+    return entityInstance;
+  }
+
+  private assignId() {
+    if (this.url && this.id === undefined) {
+      const url = this.url.split('/');
+
+      this.id = parseInt(url[url.length - 1]);
+    }
   }
 }

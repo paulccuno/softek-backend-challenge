@@ -20,21 +20,24 @@ export class DynamoCustomRepostory implements ICustomRepository {
 
     const savedData = new Custom({
       ...custom,
-      createdAt: new Date(),
-      isActive: true,
+      createdAt: new Date().toISOString(),
+      isActive: 'true',
     });
 
     await this.dynamodb.putItem(this.tableName, savedData);
+
+    await this.dynamodb.incrementCounter(this.tableName, 1);
 
     return savedData;
   }
 
   async getAll(limit: number, pageToken?: any): Promise<Pagination<Custom>> {
-    const { items, nextPageToken } = await this.dynamodb.scanWithPagination(
-      this.tableName,
-      limit,
-      pageToken,
-    );
+    const { items, nextPageToken } =
+      await this.dynamodb.queryByActiveSortedByCreatedAt(
+        this.tableName,
+        limit,
+        pageToken,
+      );
 
     const data = (items || [])?.map((v) => new Custom(v));
 
@@ -50,7 +53,7 @@ export class DynamoCustomRepostory implements ICustomRepository {
   async getById(id: string): Promise<Custom | null> {
     const result = await this.dynamodb.getItem(this.tableName, {
       id,
-      isActive: true,
+      isActive: 'true',
     });
 
     if (!result?.Item || !Object.keys(result.Item || {}).length) return null;
@@ -73,8 +76,10 @@ export class DynamoCustomRepostory implements ICustomRepository {
   async delete(id: string): Promise<void> {
     const record = await this.getById(id);
 
-    const dataDeleted = new Custom({ ...record, isActive: false });
+    const dataDeleted = new Custom({ ...record, isActive: 'false' });
 
     await this.dynamodb.putItem(this.tableName, dataDeleted);
+
+    await this.dynamodb.incrementCounter(this.tableName, -1);
   }
 }

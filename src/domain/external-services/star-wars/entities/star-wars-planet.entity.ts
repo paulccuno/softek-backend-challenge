@@ -2,7 +2,7 @@ import { Expose, plainToInstance, Transform } from 'class-transformer';
 
 export class SWPlanet {
   @Expose()
-  public readonly id: number;
+  public id: number;
 
   @Expose()
   public readonly name: string;
@@ -17,9 +17,7 @@ export class SWPlanet {
   public readonly diameter: string;
 
   @Expose()
-  @Transform(({ value }) => (value === 'unknown' ? null : value), {
-    toClassOnly: true,
-  })
+  @Transform(({ value }) => (value === 'unknown' ? null : value))
   public readonly climate?: string;
 
   @Expose()
@@ -41,15 +39,11 @@ export class SWPlanet {
   public readonly films: string[];
 
   @Expose()
-  @Transform(({ value }) => (value ? new Date(value) : null), {
-    toClassOnly: true,
-  })
+  @Transform(({ value }) => (value ? new Date(value) : null))
   public readonly created: Date;
 
   @Expose()
-  @Transform(({ value }) => (value ? new Date(value) : null), {
-    toClassOnly: true,
-  })
+  @Transform(({ value }) => (value ? new Date(value) : null))
   public readonly edited: Date;
 
   @Expose()
@@ -58,19 +52,26 @@ export class SWPlanet {
   constructor(props: Partial<SWPlanet>) {
     Object.assign(this, props);
 
-    if (this.url) {
-      const match = this.url.match(/\/([0-9]+)\/$/);
-      if (match && match[1]) {
-        this.id = parseInt(match[1], 10);
-      }
-    }
+    this.assignId();
   }
 
   public static toEntity(data: any): SWPlanet {
-    return plainToInstance(SWPlanet, data, {
+    const entityInstance = plainToInstance(SWPlanet, data, {
       exposeUnsetFields: true,
       excludeExtraneousValues: true,
       enableImplicitConversion: true,
     });
+
+    entityInstance.assignId();
+
+    return entityInstance;
+  }
+
+  private assignId() {
+    if (this.url && this.id === undefined) {
+      const url = this.url.split('/');
+
+      this.id = parseInt(url[url.length - 1]);
+    }
   }
 }

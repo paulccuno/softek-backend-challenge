@@ -2,7 +2,7 @@ import { Expose, plainToInstance } from 'class-transformer';
 
 export class RnMEpisode {
   @Expose()
-  public readonly id: number;
+  public id: number;
 
   @Expose()
   public readonly name: string;
@@ -25,19 +25,26 @@ export class RnMEpisode {
   constructor(props: Partial<RnMEpisode>) {
     Object.assign(this, props);
 
-    if (this.url) {
-      const match = this.url.match(/\/([0-9]+)\/$/);
-      if (match && match[1]) {
-        this.id = parseInt(match[1], 10);
-      }
-    }
+    this.assignId();
   }
 
   public static toEntity(data: any): RnMEpisode {
-    return plainToInstance(RnMEpisode, data, {
+    const entitiyInstance = plainToInstance(RnMEpisode, data, {
       exposeUnsetFields: true,
       excludeExtraneousValues: true,
       enableImplicitConversion: true,
     });
+
+    entitiyInstance.assignId();
+
+    return entitiyInstance;
+  }
+
+  private assignId() {
+    if (this.url && this.id === undefined) {
+      const url = this.url.split('/');
+
+      this.id = parseInt(url[url.length - 1]);
+    }
   }
 }

@@ -44,13 +44,13 @@ export class FusedCharacter {
   public updatedBy: string;
 
   @Expose({ name: 'created_at' })
-  public readonly createdAt: Date;
+  public readonly createdAt: Date | string;
 
   @Expose({ name: 'updated_at' })
   public updatedAt: Date;
 
   @Expose({ name: 'is_active' })
-  public isActive: boolean;
+  public isActive: boolean | string;
 
   constructor(props: Partial<FusedCharacter>) {
     Object.assign(this, props);

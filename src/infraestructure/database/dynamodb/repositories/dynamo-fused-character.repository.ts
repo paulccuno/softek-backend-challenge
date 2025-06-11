@@ -22,11 +22,13 @@ export class DynamoFusedCharacterRepository
 
     const savedData = new FusedCharacter({
       ...fusedCharacter,
-      createdAt: new Date(),
-      isActive: true,
+      createdAt: new Date().toISOString(),
+      isActive: 'true',
     });
 
     await this.dynamodb.putItem(this.tableName, savedData);
+
+    await this.dynamodb.incrementCounter(this.tableName, 1);
 
     return savedData;
   }
@@ -35,32 +37,36 @@ export class DynamoFusedCharacterRepository
     limit: number,
     pageToken?: any,
   ): Promise<Pagination<FusedCharacter>> {
-    const { items, nextPageToken } = await this.dynamodb.scanWithPagination(
-      this.tableName,
-      limit,
-      pageToken,
-    );
+    const { items, nextPageToken } =
+      await this.dynamodb.queryByActiveSortedByCreatedAt(
+        this.tableName,
+        limit,
+        pageToken,
+      );
 
     const data = (items || [])?.map((v) => new FusedCharacter(v));
+
+    const total = await this.dynamodb.getCounter(this.tableName);
+    const totalPages = Math.ceil(total / limit);
 
     return new Pagination({
       data: data,
       limit,
       page: nextPageToken || 0,
-      total: 0,
-      totalPages: 0,
+      total,
+      totalPages,
     });
   }
 
   async getById(id: string): Promise<FusedCharacter | null> {
     const result = await this.dynamodb.getItem(this.tableName, {
       id,
-      isActive: true,
+      isActive: 'true',
     });
 
     if (!result?.Item || !Object.keys(result.Item || {}).length) return null;
 
-    return new FusedCharacter(result.Item);
+    return FusedCharacter.toEntity(result.Item);
   }
 
   async udpate(
@@ -81,8 +87,10 @@ export class DynamoFusedCharacterRepository
   async delete(id: string): Promise<void> {
     const record = await this.getById(id);
 
-    const dataDeleted = new FusedCharacter({ ...record, isActive: false });
+    const dataDeleted = new FusedCharacter({ ...record, isActive: 'false' });
 
     await this.dynamodb.putItem(this.tableName, dataDeleted);
+
+    await this.dynamodb.incrementCounter(this.tableName, -1);
   }
 }

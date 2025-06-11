@@ -14,7 +14,7 @@ export class RnMObject {
 
 export class RnMCharacter {
   @Expose()
-  public readonly id: number;
+  public id: number;
 
   @Expose()
   public readonly name: string;
@@ -49,27 +49,32 @@ export class RnMCharacter {
   public readonly url: string;
 
   @Expose()
-  @Transform(({ value }) => (value ? new Date(value) : null), {
-    toClassOnly: true,
-  })
+  @Transform(({ value }) => (value ? new Date(value) : null))
   public readonly created: Date;
 
   constructor(props: Partial<RnMCharacter>) {
     Object.assign(this, props);
 
-    if (this.url && this.id === undefined) {
-      const match = this.url.match(/\/([0-9]+)\/$/);
-      if (match && match[1]) {
-        this.id = parseInt(match[1], 10);
-      }
-    }
+    this.assignId();
   }
 
   public static toEntity(data: any): RnMCharacter {
-    return plainToInstance(RnMCharacter, data, {
+    const entitiyInstance = plainToInstance(RnMCharacter, data, {
       exposeUnsetFields: true,
       excludeExtraneousValues: true,
       enableImplicitConversion: true,
     });
+
+    entitiyInstance.assignId();
+
+    return entitiyInstance;
+  }
+
+  private assignId() {
+    if (this.url && this.id === undefined) {
+      const url = this.url.split('/');
+
+      this.id = parseInt(url[url.length - 1]);
+    }
   }
 }

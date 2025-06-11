@@ -15,14 +15,20 @@ export class DynamoUserRepository implements IUserRepository {
   }
 
   async findByUsename(username: string): Promise<User | null> {
-    const result = await this.dynamodb.getItem(this.tableName, {
-      username,
-      isActive: true,
-    });
+    const result = await this.dynamodb.queryByIndex(
+      this.tableName,
+      'UsernameIndex',
+      {
+        attribute: 'username',
+        value: username,
+      },
+      undefined,
+      { isActive: 'true' },
+    );
 
-    if (!result?.Item || !Object.keys(result.Item || {}).length) return null;
+    if (!result.Items || result.Items.length === 0) return null;
 
-    return new User(result.Item);
+    return new User(result.Items[0]);
   }
 
   async create(user: User): Promise<User> {
@@ -32,11 +38,13 @@ export class DynamoUserRepository implements IUserRepository {
 
     const savedData = new User({
       ...user,
-      createdAt: new Date(),
-      isActive: true,
+      createdAt: new Date().toISOString(),
+      isActive: 'true',
     });
 
     await this.dynamodb.putItem(this.tableName, savedData);
+
+    await this.dynamodb.incrementCounter(this.tableName, 1);
 
     return savedData;
   }
