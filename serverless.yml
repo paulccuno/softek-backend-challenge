@@ -34,10 +34,22 @@ provider:
             - acm:ListCertificates
             - acm:DescribeCertificate
           Resource: "*"
+      
+        - Effect: Allow
+          Action:
+            - dynamodb:PutItem
+            - dynamodb:GetItem
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource:
+            - arn:aws:dynamodb:us-east-1:*:table/*
 
 plugins:
   - serverless-jetpack
   - serverless-offline
+  - serverless-dotenv-plugin
 
 package:
   individually: true
@@ -77,10 +89,37 @@ resources:
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
+          - AttributeName: username
+            AttributeType: S
+          - AttributeName: isActive
+            AttributeType: S
+          - AttributeName: createdAt
+            AttributeType: S
         KeySchema:
           - AttributeName: id
             KeyType: HASH
         BillingMode: PAY_PER_REQUEST
+        GlobalSecondaryIndexes:
+          - IndexName: UsernameIndex
+            KeySchema:
+              - AttributeName: username
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+          - IndexName: CreatedAtIndex
+            KeySchema:
+              - AttributeName: createdAt
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+          - IndexName: ActiveByCreatedAt
+            KeySchema:
+              - AttributeName: isActive
+                KeyType: HASH
+              - AttributeName: createdAt
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
 
     FusedCharacterTable:
       Type: AWS::DynamoDB::Table
@@ -89,10 +128,23 @@ resources:
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
+          - AttributeName: createdAt
+            AttributeType: S
+          - AttributeName: isActive
+            AttributeType: S
         KeySchema:
           - AttributeName: id
             KeyType: HASH
         BillingMode: PAY_PER_REQUEST
+        GlobalSecondaryIndexes:
+          - IndexName: ActiveByCreatedAt
+            KeySchema:
+              - AttributeName: isActive
+                KeyType: HASH
+              - AttributeName: createdAt
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
 
     CustomTable:
       Type: AWS::DynamoDB::Table
@@ -101,7 +153,32 @@ resources:
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
+          - AttributeName: createdAt
+            AttributeType: S
+          - AttributeName: isActive
+            AttributeType: S
         KeySchema:
           - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+        GlobalSecondaryIndexes:
+          - IndexName: ActiveByCreatedAt
+            KeySchema:
+              - AttributeName: isActive
+                KeyType: HASH
+              - AttributeName: createdAt
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+    
+    CountersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Counters
+        AttributeDefinitions:
+          - AttributeName: entityName
+            AttributeType: S
+        KeySchema:
+          - AttributeName: entityName
             KeyType: HASH
         BillingMode: PAY_PER_REQUEST
