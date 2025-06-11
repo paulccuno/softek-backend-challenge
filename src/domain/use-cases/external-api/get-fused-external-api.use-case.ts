@@ -3,6 +3,7 @@ import { IFusedCharacterRepository } from 'src/domain/repositories/fused-charact
 import { IRickAndMortyService } from '../../external-services/rick-and-morty/rick-and-morty.api.service';
 import { IStarWarsService } from '../../external-services/star-wars/star-wars.api.service';
 import { FusedCharacter } from 'src/domain/entites/fused-character.entity';
+import { JwtPayload } from 'src/infraestructure/jwt/jwt.strategy';
 
 @Injectable()
 export class GetFusedExternalApiUseCase {
@@ -16,7 +17,7 @@ export class GetFusedExternalApiUseCase {
     this.logger = new Logger(GetFusedExternalApiUseCase.name);
   }
 
-  async execute() {
+  async execute(user: JwtPayload) {
     const swPeople = await this.starWarsService.getPeople();
 
     // const swCharacter = swPeople[Math.floor(Math.random() * swTotalPeople) + 1];
@@ -27,10 +28,6 @@ export class GetFusedExternalApiUseCase {
     if (!swCharacter) throw new Error(`Star Wars character not found.`);
 
     this.logger.log({ swCharacter });
-
-    const swCharacterUrl = swCharacter.url.split('/');
-
-    const swCharacterId = parseInt(swCharacterUrl[swCharacterUrl.length - 1]);
 
     const swHomeworld = await this.starWarsService.getPlanetByUrl(
       swCharacter.homeworld,
@@ -55,7 +52,7 @@ export class GetFusedExternalApiUseCase {
 
     const savedFusedData = await this.fusedCharacterRepository.create(
       new FusedCharacter({
-        starWarsCharacterId: swCharacterId,
+        starWarsCharacterId: swCharacter.id,
         starWarsCharacterName: swCharacter.name,
         starWarsCharacterHeight: swCharacter.height,
         starWarsCharacterMass: swCharacter.mass,
@@ -65,7 +62,7 @@ export class GetFusedExternalApiUseCase {
         rnMLocationType: rnMLocation.type,
         rnMLocationDimension: rnMLocation.dimension,
         fusionDescription: fusionDescription,
-        createdBy: 'ADMIN',
+        createdBy: user.sub,
       }),
     );
 

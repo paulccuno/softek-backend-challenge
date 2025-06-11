@@ -9,9 +9,12 @@ export class GetHistoryExternalApiUseCase {
   ) {}
 
   async execute(request: GetHistoryExternalApiDto) {
-    const { page, limit } = request;
+    const { limit, pageToken } = request;
 
-    const history = await this.fusedCharacterRepository.getAll(page, limit);
+    const history = await this.fusedCharacterRepository.getAll(
+      limit,
+      pageToken,
+    );
 
     return history;
   }

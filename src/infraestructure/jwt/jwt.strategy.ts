@@ -3,7 +3,12 @@ import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { IUserRepository } from 'src/domain/repositories/user.repository';
 import { EnvironmentConfig } from '../config/environment.config';
-import { JwtPayloadDto } from 'src/application/dtos/auth/login-user-response.dto';
+
+export interface JwtPayload {
+  sub: string;
+  username: string;
+  roles: string[];
+}
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
@@ -19,12 +24,16 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     this.logger = new Logger(JwtStrategy.name);
   }
 
-  async validate(payload: JwtPayloadDto) {
+  async validate(payload: JwtPayload): Promise<JwtPayload> {
     const user = await this.userRepository.findByUsename(payload.username);
 
     if (!user)
       throw new UnauthorizedException('User not found or invalid token.');
 
-    return user;
+    return {
+      sub: user.id as string,
+      username: user.username,
+      roles: user.roles,
+    };
   }
 }

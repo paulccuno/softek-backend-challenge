@@ -1,10 +1,8 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import {
-  JwtPayloadDto,
-  TokensResponseDto,
-} from 'src/application/dtos/auth/login-user-response.dto';
+import { TokensResponseDto } from 'src/application/dtos/auth/login-user-response.dto';
 import { EnvironmentConfig } from 'src/infraestructure/config/environment.config';
+import { JwtPayload } from 'src/infraestructure/jwt/jwt.strategy';
 
 @Injectable()
 export class RefreshTokenUseCase {
@@ -18,14 +16,14 @@ export class RefreshTokenUseCase {
 
     const token = authHeader.replace('Bearer ', '').trim();
 
-    const decoded: JwtPayloadDto = this.jwtService.decode(token);
+    const decoded: JwtPayload = this.jwtService.decode(token);
 
     if (!decoded || typeof decoded !== 'object') {
       throw new UnauthorizedException('Invalid token');
     }
 
     const { sub, username, roles } = decoded;
-    const payload: JwtPayloadDto = { sub, username, roles };
+    const payload: JwtPayload = { sub, username, roles };
 
     const response: TokensResponseDto = {
       accessToken: this.jwtService.sign(payload),

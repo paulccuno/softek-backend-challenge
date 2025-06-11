@@ -6,6 +6,8 @@ import { AppException } from 'src/infraestructure/exceptions/app.exception';
 import * as bcrypt from 'bcrypt';
 import { LoginUserResponseDto } from 'src/application/dtos/auth/login-user-response.dto';
 import { EnvironmentConfig } from 'src/infraestructure/config/environment.config';
+import { User } from 'src/domain/entites/user.entity';
+import { JwtPayload } from 'src/infraestructure/jwt/jwt.strategy';
 
 @Injectable()
 export class LoginUserUseCase {
@@ -14,7 +16,9 @@ export class LoginUserUseCase {
   constructor(
     private readonly userRepository: IUserRepository,
     private readonly jwtService: JwtService,
-  ) {}
+  ) {
+    this.logger = new Logger(LoginUserUseCase.name);
+  }
 
   async execute(dto: LoginUserDto): Promise<LoginUserResponseDto> {
     const user = await this.userRepository.findByUsename(dto.username);
@@ -32,11 +36,17 @@ export class LoginUserUseCase {
 
     const { password, ...rest } = user;
 
+    const payload: JwtPayload = {
+      sub: user.id as string,
+      username: user.username,
+      roles: user.roles,
+    };
+
     const response: LoginUserResponseDto = {
-      user,
+      user: new User(rest),
       tokens: {
-        accessToken: this.jwtService.sign(rest),
-        refreshToken: this.jwtService.sign(rest, {
+        accessToken: this.jwtService.sign(payload),
+        refreshToken: this.jwtService.sign(payload, {
           expiresIn: EnvironmentConfig.JWT_REFRESH_EXPIRATION,
         }),
       },
