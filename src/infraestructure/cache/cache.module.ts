@@ -1,6 +1,10 @@
 import { CacheModule } from '@nestjs/cache-manager';
 import { Logger, Module } from '@nestjs/common';
 import { EnvironmentConfig } from '../config/environment.config';
+import Keyv from 'keyv';
+import { CacheableMemory } from 'cacheable';
+import { createKeyv } from '@keyv/redis';
+import { CacheIndexManager } from './cache-index.manager';
 
 const redisHost = EnvironmentConfig.REDIS_HOST;
 const redisPort = EnvironmentConfig.REDIS_PORT;
@@ -9,14 +13,23 @@ const defaultTtl = EnvironmentConfig.CACHE_DEFAULT_TTL;
 
 @Module({
   imports: [
-    CacheModule.register({
-      host: redisHost,
-      port: redisPort,
-      password: redisPassword ? redisPassword : undefined,
-      ttl: defaultTtl,
+    CacheModule.registerAsync({
+      useFactory: () => ({
+        stores: [
+          new Keyv({
+            store: new CacheableMemory({ ttl: defaultTtl }),
+          }),
+          createKeyv(
+            redisPassword
+              ? `redis://default:${redisPassword}@${redisHost}:${redisPort}`
+              : `redis://${redisHost}:${redisPort}`,
+          ),
+        ],
+      }),
     }),
   ],
-  exports: [CacheModule],
+  providers: [CacheIndexManager],
+  exports: [CacheModule, CacheIndexManager],
 })
 export class AppCacheModule {}
 

@@ -55,9 +55,10 @@ package:
   individually: true
   excludeDevDependencies: true
   patterns:
-    - '!node_modules/aws-sdk/**'
+    - '!node_modules/**'
     - '!test/**'
     - '!**/*.spec.ts'
+    - '!**/*.map'
     
 
 functions:

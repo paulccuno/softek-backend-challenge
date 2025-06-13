@@ -1,9 +1,13 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { IFusedCharacterRepository } from 'src/domain/repositories/fused-character.repository';
 import { IRickAndMortyService } from '../../external-services/rick-and-morty/rick-and-morty.api.service';
 import { IStarWarsService } from '../../external-services/star-wars/star-wars.api.service';
 import { FusedCharacter } from 'src/domain/entites/fused-character.entity';
 import { JwtPayload } from 'src/infraestructure/jwt/jwt.strategy';
+import { CACHE_KEY } from 'src/infraestructure/cache/constants';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
+import { CacheIndexManager } from '../../../infraestructure/cache/cache-index.manager';
 
 @Injectable()
 export class GetFusedExternalApiUseCase {
@@ -13,6 +17,8 @@ export class GetFusedExternalApiUseCase {
     private readonly rickAndMortyService: IRickAndMortyService,
     private readonly starWarsService: IStarWarsService,
     private readonly fusedCharacterRepository: IFusedCharacterRepository,
+    @Inject(CACHE_MANAGER) private readonly cache: Cache,
+    private readonly cacheIndexManager: CacheIndexManager,
   ) {
     this.logger = new Logger(GetFusedExternalApiUseCase.name);
   }
@@ -65,6 +71,10 @@ export class GetFusedExternalApiUseCase {
         createdBy: user.sub,
       }),
     );
+
+    const indexKey = `${CACHE_KEY.getHistoryExternalApi}:index`;
+
+    await this.cacheIndexManager.invalidate(indexKey);
 
     return savedFusedData;
   }
